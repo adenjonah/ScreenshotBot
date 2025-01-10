@@ -115,7 +115,11 @@ async def on_message(message):
                 color=discord.Color.green()
             )
             for key, value in processed_data.items():
-                embed.add_field(name=key, value=value, inline=True)
+                # If the value is None or "None", prepend a red circle emoji
+                if value is None or str(value).lower() == "none":
+                    embed.add_field(name=key, value=f"🔴 None", inline=True)  # Use red circle emoji for emphasis
+                else:
+                    embed.add_field(name=key, value=value, inline=True)
 
             await message.channel.send(embed=embed)
         else:
