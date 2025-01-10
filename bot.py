@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import aiohttp
+import logging
 from dotenv import load_dotenv
 from gptOCR import gptOCR  # Import the OCR processing function
 from process_data import process_order_data  # Import the data processing function
@@ -9,6 +10,15 @@ from sheets import send_to_sheets  # Import the function to send data to sheets
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,  # Set log level to INFO or DEBUG for more detailed logs
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler()  # Logs to Heroku stdout
+    ]
+)
 
 # Retrieve sensitive information
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
@@ -29,9 +39,8 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)  # Ensure the directory exists
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user.name} - {bot.user.id}")
-    print("Bot is ready!")
-    print("------")
+    logging.info(f"Logged in as {bot.user.name} - {bot.user.id}")
+    logging.info("Bot is ready!")
 
 @bot.event
 async def on_message(message):
@@ -52,7 +61,6 @@ async def on_message(message):
         await message.channel.send("Please provide order details or attach an image.")
         return
 
-    # Initialize a list to store OCR results
     ocr_results = []
     downloaded_files = []  # Keep track of downloaded files
 
@@ -63,79 +71,70 @@ async def on_message(message):
                 file_path = os.path.join(DOWNLOAD_DIR, attachment.filename)
                 downloaded_files.append(file_path)  # Track file for cleanup
 
-                # Download the image
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(attachment.url) as response:
-                        if response.status == 200:
-                            with open(file_path, "wb") as f:
-                                f.write(await response.read())
-                            print(f"Image saved to {file_path}")
+                try:
+                    # Download the image
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(attachment.url) as response:
+                            if response.status == 200:
+                                with open(file_path, "wb") as f:
+                                    f.write(await response.read())
+                                logging.info(f"Image saved to {file_path}")
 
-                            # Extract text from the image using gptOCR
-                            ocr_data = gptOCR(file_path)
-                            if "extracted_text" in ocr_data:
-                                ocr_results.append(ocr_data["extracted_text"])
+                                # Extract text from the image using gptOCR
+                                ocr_data = gptOCR(file_path)
+                                if "extracted_text" in ocr_data:
+                                    ocr_results.append(ocr_data["extracted_text"])
+                                else:
+                                    await message.channel.send(f"Failed to process {attachment.filename}. Error: {ocr_data.get('error', 'Unknown error')}")
                             else:
-                                await message.channel.send(f"Failed to process {attachment.filename}. Error: {ocr_data.get('error', 'Unknown error')}")
+                                await message.channel.send(f"Failed to download {attachment.filename}")
+                except Exception as e:
+                    logging.error(f"Error downloading or processing image: {attachment.filename}. Error: {e}")
 
-                        else:
-                            await message.channel.send(f"Failed to download {attachment.filename}")
-
-    # Combine text content and OCR results
     combined_data = {
         "text_content": order_text,
         "ocr_results": ocr_results
     }
 
-    # Retrieve purchaser username and date of screenshot
     purchaser_username = message.author.name
     screenshot_date = message.created_at.strftime("%Y-%m-%d")
 
-    print(f"combined data: {combined_data}")
+    logging.info(f"Combined data: {combined_data}")
 
-    # Process the data using the process_data.py module
-    processed_data = process_order_data(combined_data, purchaser_username, screenshot_date)
+    try:
+        # Process the data
+        processed_data = process_order_data(combined_data, purchaser_username, screenshot_date)
+        logging.info(f"Processed data: {processed_data}")
 
-    print(f"processed data: {processed_data}")
+        # Send to Google Sheets
+        result = send_to_sheets(processed_data)
+        if result == "Success":
+            embed = discord.Embed(
+                title="Order Logged Successfully!",
+                description="Here is the information that was logged. Please review it for accuracy.",
+                color=discord.Color.green()
+            )
+            for key, value in processed_data.items():
+                embed.add_field(name=key, value=value, inline=True)
 
-    # Send the processed data to Google Sheets using sheets.py
-    result = send_to_sheets(processed_data)
+            await message.channel.send(embed=embed)
+        else:
+            await message.channel.send("Failed to log the order. Please try again.")
+            logging.error(f"Failed to log order: {result}")
+    except Exception as e:
+        logging.error(f"Error during processing or logging to Google Sheets: {e}")
 
-    # Notify the user of the result
-    if result == "Success":
-        # Create an embedded message with the logged information
-        embed = discord.Embed(
-            title="Order Logged Successfully!",
-            description="Here is the information that was logged. Please review it for accuracy.",
-            color=discord.Color.green()
-        )
-        embed.add_field(name="Purchaser Username", value=processed_data.get("Purchaser Username", "N/A"), inline=True)
-        embed.add_field(name="Date of Screenshot", value=processed_data.get("Date of Screenshot", "N/A"), inline=True)
-        embed.add_field(name="Account Email", value=processed_data.get("Account Email", "N/A"), inline=True)
-        embed.add_field(name="Account Password", value=processed_data.get("Account Password", "N/A"), inline=True)
-        embed.add_field(name="Event Name", value=processed_data.get("Event Name", "N/A"), inline=True)
-        embed.add_field(name="Event Date", value=processed_data.get("Event Date", "N/A"), inline=True)
-        embed.add_field(name="Venue", value=processed_data.get("Venue", "N/A"), inline=True)
-        embed.add_field(name="Location", value=processed_data.get("Location", "N/A"), inline=True)
-        embed.add_field(name="Quantity of Tickets", value=processed_data.get("Quantity of Tickets", "N/A"), inline=True)
-        embed.add_field(name="Total Price", value=processed_data.get("Total Price", "N/A"), inline=True)
-
-        # Send the embedded message to the user
-        await message.channel.send(embed=embed)
-    else:
-        await message.channel.send("Failed to log the order. Please try again.")
-
-    # Cleanup: Remove downloaded images
+    # Cleanup
     for file_path in downloaded_files:
         try:
             os.remove(file_path)
-            print(f"Deleted file: {file_path}")
+            logging.info(f"Deleted file: {file_path}")
         except Exception as e:
-            print(f"Failed to delete file {file_path}: {e}")
+            logging.error(f"Failed to delete file {file_path}: {e}")
 
 # Run the bot
 if __name__ == "__main__":
     if DISCORD_BOT_TOKEN is None:
-        print("Error: DISCORD_BOT_TOKEN not found in .env file.")
+        logging.critical("Error: DISCORD_BOT_TOKEN not found in .env file.")
     else:
         bot.run(DISCORD_BOT_TOKEN)
