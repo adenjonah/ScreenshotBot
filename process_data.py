@@ -39,8 +39,8 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
         # Debug: Log the extracted JSON
         print(f"OCR JSON extracted: {ocr_json}")
 
-        if not ocr_json:
-            raise ValueError("No valid JSON found in OCR results.")
+        # if not ocr_json:
+        #     raise ValueError("No valid JSON found in OCR results.")
 
         # Prepare data for GPT API
         prompt = (
