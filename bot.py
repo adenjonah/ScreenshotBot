@@ -20,7 +20,6 @@ logging.basicConfig(
     ]
 )
 
-# Retrieve sensitive information
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 # Define command prefix
