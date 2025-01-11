@@ -57,7 +57,7 @@ async def on_message(message):
     # Extract text content from the message
     order_text = message.content.strip()  # Remove leading and trailing whitespace
     if not order_text and not message.attachments:
-        await message.channel.send("Please provide order details or attach an image.")
+        logging.info("Message ignored: No text or attachments found.")
         return
 
     ocr_results = []
@@ -105,10 +105,17 @@ async def on_message(message):
         processed_data = process_order_data(combined_data, purchaser_username, screenshot_date)
         logging.info(f"Processed data: {processed_data}")
 
-        # If an error is detected, do not respond and exit the handler
+        # If an error is detected, log it and return without responding
         if processed_data.get("error"):
             logging.warning(f"Processing error detected: {processed_data['error']}")
             return
+
+        # Validate processed data fields
+        required_fields = ["Account Email", "Event Name", "Event Date", "Location", "Quantity of Tickets", "Total Price"]
+        missing_fields = [field for field in required_fields if not processed_data.get(field)]
+        if missing_fields:
+            logging.warning(f"Missing required fields: {missing_fields}")
+            return  # Skip logging and sending data to Sheets
 
         # Send to Google Sheets
         result = send_to_sheets(processed_data)
@@ -127,7 +134,6 @@ async def on_message(message):
 
             await message.channel.send(embed=embed)
         else:
-            await message.channel.send("Failed to log the order. Please try again.")
             logging.error(f"Failed to log order: {result}")
     except Exception as e:
         logging.error(f"Error during processing or logging to Google Sheets: {e}")
@@ -139,7 +145,7 @@ async def on_message(message):
             logging.info(f"Deleted file: {file_path}")
         except Exception as e:
             logging.error(f"Failed to delete file {file_path}: {e}")
-            
+                     
 # Run the bot
 if __name__ == "__main__":
     if DISCORD_BOT_TOKEN is None:
