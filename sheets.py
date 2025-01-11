@@ -14,7 +14,7 @@ def send_to_sheets(processed_data):
         str: Success or error message.
     """
     
-    prod = 1
+    prod = 0
     
     try:
         print("Initializing Google Sheets API...")
