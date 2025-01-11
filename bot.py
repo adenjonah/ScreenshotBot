@@ -84,9 +84,9 @@ async def on_message(message):
                                 if "extracted_text" in ocr_data:
                                     ocr_results.append(ocr_data["extracted_text"])
                                 else:
-                                    await message.channel.send(f"Failed to process {attachment.filename}. Error: {ocr_data.get('error', 'Unknown error')}")
+                                    logging.warning(f"Failed to process {attachment.filename}: {ocr_data.get('error', 'Unknown error')}")
                             else:
-                                await message.channel.send(f"Failed to download {attachment.filename}")
+                                logging.error(f"Failed to download {attachment.filename}")
                 except Exception as e:
                     logging.error(f"Error downloading or processing image: {attachment.filename}. Error: {e}")
 
@@ -105,9 +105,11 @@ async def on_message(message):
         processed_data = process_order_data(combined_data, purchaser_username, screenshot_date)
         logging.info(f"Processed data: {processed_data}")
 
+        # If an error is detected, do not respond and exit the handler
         if processed_data.get("error"):
-            await message.channel.send("Failed to process the order. Please try again.")
+            logging.warning(f"Processing error detected: {processed_data['error']}")
             return
+
         # Send to Google Sheets
         result = send_to_sheets(processed_data)
         if result == "Success":
@@ -137,7 +139,7 @@ async def on_message(message):
             logging.info(f"Deleted file: {file_path}")
         except Exception as e:
             logging.error(f"Failed to delete file {file_path}: {e}")
-
+            
 # Run the bot
 if __name__ == "__main__":
     if DISCORD_BOT_TOKEN is None:

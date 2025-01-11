@@ -21,12 +21,20 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
         screenshot_date (str): The date the screenshot message was sent (YYYY-MM-DD).
 
     Returns:
-        dict: A structured JSON object with extracted fields.
+        dict: A structured JSON object with extracted fields or an error message if invalid input.
     """
     try:
         # Extract text content and OCR results
-        text_content = combined_data.get("text_content", "")
+        text_content = combined_data.get("text_content", "").strip()
         ocr_results = combined_data.get("ocr_results", [])
+
+        # Debug: Log incoming data
+        print(f"Received text content: {text_content}")
+        print(f"Received OCR results: {ocr_results}")
+
+        # Basic validation: Ensure at least some content exists
+        if not text_content and not ocr_results:
+            return {"error": "No valid content found in the input."}
 
         # Extract JSON from OCR results
         ocr_json = None
@@ -36,15 +44,13 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
                 ocr_json = match.group()
                 break
 
-        # Debug: Log the extracted JSON
+        # Debug: Log the extracted OCR JSON
         print(f"OCR JSON extracted: {ocr_json}")
-
-        # if not ocr_json:
-        #     raise ValueError("No valid JSON found in OCR results.")
 
         # Prepare data for GPT API
         prompt = (
-            f"Extract the following fields from the provided data and return them as a JSON object if you feel that the data you have been provided with is not intended to meet these classifications respond only with \"INPUT_ERROR_CODE\" and nothing else:\n\n"
+            f"Extract the following fields from the provided data and return them as a JSON object. "
+            f"If you feel the data is not intended for these classifications, respond only with \"INPUT_ERROR_CODE\":\n\n"
             f"- Purchaser Username: The Discord username ({purchaser_username})\n"
             f"- Date of Screenshot: The date the screenshot was sent ({screenshot_date})\n"
             f"- Account Email: The email address in the text content\n"
@@ -72,19 +78,20 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
         # Extract the JSON from the response
         extracted_content = response.choices[0].message.content.strip()
 
-        # Debug: Log the extracted content
+        # Debug: Log the GPT response
         print(f"Extracted content: {extracted_content}")
 
-        # Remove markdown code block delimiters if present
+        # Handle potential "INPUT_ERROR_CODE" response
+        if "INPUT_ERROR_CODE" in extracted_content:
+            return {"error": "Input does not match the expected order format."}
+
+        # Parse and return the extracted JSON
         if extracted_content.startswith("```") and extracted_content.endswith("```"):
             extracted_content = extracted_content[extracted_content.find("{"):extracted_content.rfind("}") + 1]
 
-        if "INPUT_ERROR_CODE" in extracted_content:
-            return {"error": "Input error code detected"}
-        # Parse and return the extracted JSON
         return json.loads(extracted_content)
 
     except Exception as e:
-        # Log the error
+        # Log unexpected errors
         print(f"Error during processing: {e}")
         return {"error": str(e)}
