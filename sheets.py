@@ -41,7 +41,7 @@ def send_to_sheets(processed_data):
 
         # Open the Google Sheet by name
 
-        sheet_name = "Buying Screenshots Data"  # Replace with your sheet name
+        sheet_name = "BuyingScreenshotsData"  # Replace with your sheet name
             
         print(f"Opening Google Sheet: {sheet_name}")
         sheet = client.open(sheet_name).sheet1
