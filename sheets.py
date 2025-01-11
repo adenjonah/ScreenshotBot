@@ -23,10 +23,8 @@ def send_to_sheets(processed_data):
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
         # Load service account credentials from the GOOGLE_KEY environment variable
-        if prod == 0:
-            google_key_json = os.getenv("GOOGLE_KEY")
-        else:
-            google_key_json = os.getenv("GREG_KEY")
+
+        google_key_json = os.getenv("GOOGLE_KEY")
         
         if not google_key_json:
             raise ValueError("GOOGLE_KEY environment variable is not set.")
@@ -42,10 +40,8 @@ def send_to_sheets(processed_data):
         print("Authorized Google Sheets client.")
 
         # Open the Google Sheet by name
-        if prod == 0:
-            sheet_name = "ScreenshotBotTest"
-        else:
-            sheet_name = "Buying Screenshots Data"  # Replace with your sheet name
+
+        sheet_name = "Buying Screenshots Data"  # Replace with your sheet name
             
         print(f"Opening Google Sheet: {sheet_name}")
         sheet = client.open(sheet_name).sheet1
