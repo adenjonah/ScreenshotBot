@@ -110,12 +110,18 @@ async def on_message(message):
             logging.warning(f"Processing error detected: {processed_data['error']}")
             return
 
+        # Define the maximum allowed missing fields
+        MAX_ALLOWED_MISSING_FIELDS = 3  # Adjust based on your tolerance
+
         # Validate processed data fields
         required_fields = ["Account Email", "Event Name", "Event Date", "Location", "Quantity of Tickets", "Total Price"]
         missing_fields = [field for field in required_fields if not processed_data.get(field)]
-        if missing_fields:
-            logging.warning(f"Missing required fields: {missing_fields}")
+
+        if len(missing_fields) > MAX_ALLOWED_MISSING_FIELDS:
+            logging.warning(f"Too many missing required fields: {missing_fields}. Skipping logging.")
             return  # Skip logging and sending data to Sheets
+        else:
+            logging.info(f"Proceeding despite missing fields: {missing_fields}")
 
         # Send to Google Sheets
         result = send_to_sheets(processed_data)
