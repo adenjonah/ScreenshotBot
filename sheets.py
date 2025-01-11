@@ -14,7 +14,7 @@ def send_to_sheets(processed_data):
         str: Success or error message.
     """
     
-    prod = 0
+    prod = 1
     
     try:
         print("Initializing Google Sheets API...")
@@ -46,6 +46,7 @@ def send_to_sheets(processed_data):
             sheet_name = "ScreenshotBotTest"
         else:
             sheet_name = "Buying Screenshots Data"  # Replace with your sheet name
+            
         print(f"Opening Google Sheet: {sheet_name}")
         sheet = client.open(sheet_name).sheet1
 
