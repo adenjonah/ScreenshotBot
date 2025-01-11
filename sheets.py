@@ -49,7 +49,7 @@ def send_to_sheets(processed_data):
         logging.info("Google Sheets client authorized successfully.")
 
         # Open the Google Sheet by name
-        sheet_name = "BuyingScreenshotsData"  # Replace with your sheet name
+        sheet_name = "Buying Screenshots Data"  # Replace with your sheet name
         logging.info(f"Opening Google Sheet: {sheet_name}")
         sheet = client.open(sheet_name).sheet1
 
