@@ -4,11 +4,10 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import re
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Initialize the OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 def encode_image(image_path):
     """
@@ -24,6 +23,7 @@ def encode_image(image_path):
     except Exception as e:
         raise ValueError(f"Failed to encode image: {e}")
 
+
 def gptOCR(image_path):
     """
     Uses OpenAI Vision to extract text or understand content from an image.
@@ -33,12 +33,10 @@ def gptOCR(image_path):
         dict: Extracted content or error details.
     """
     try:
-        # Encode the image in base64
         base64_image = encode_image(image_path)
 
-        # Create the API request
         response = client.chat.completions.create(
-            model="gpt-4o-mini",  # Use the vision-capable model
+            model="gpt-4o-mini",
             messages=[
                 {
                     "role": "user",
@@ -52,7 +50,7 @@ def gptOCR(image_path):
                             "type": "image_url",
                             "image_url": {
                                 "url": f"data:image/jpeg;base64,{base64_image}",
-                                "detail": "high",  # Use high-detail mode
+                                "detail": "high",
                             },
                         },
                     ],
@@ -61,21 +59,18 @@ def gptOCR(image_path):
             max_tokens=300,
         )
 
-        # Return the extracted text
         return {"file_path": image_path, "extracted_text": response.choices[0].message.content.strip()}
     except Exception as e:
         return {"file_path": image_path, "error": str(e)}
 
-# Example Usage
+
 if __name__ == "__main__":
-    # Path to the image
     image_path = "test1.png"
 
-    # Run the OCR
     raw_result = gptOCR(image_path)
-    result = re.search(r"\{.*\}", raw_result["extracted_text"], re.DOTALL).group()
+    result = re.search(
+        r"\{.*\}", raw_result["extracted_text"], re.DOTALL).group()
 
-    # Print the results
     if "extracted_text" in raw_result:
         print(result)
     else:
