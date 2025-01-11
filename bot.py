@@ -105,6 +105,9 @@ async def on_message(message):
         processed_data = process_order_data(combined_data, purchaser_username, screenshot_date)
         logging.info(f"Processed data: {processed_data}")
 
+        if processed_data.get("error"):
+            await message.channel.send("Failed to process the order. Please try again.")
+            return
         # Send to Google Sheets
         result = send_to_sheets(processed_data)
         if result == "Success":

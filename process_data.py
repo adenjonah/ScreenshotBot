@@ -44,7 +44,7 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
 
         # Prepare data for GPT API
         prompt = (
-            f"Extract the following fields from the provided data and return them as a JSON object:\n\n"
+            f"Extract the following fields from the provided data and return them as a JSON object if you feel that the data you have been provided with is not intended to meet these classifications respond only with \"INPUT_ERROR_CODE\" and nothing else:\n\n"
             f"- Purchaser Username: The Discord username ({purchaser_username})\n"
             f"- Date of Screenshot: The date the screenshot was sent ({screenshot_date})\n"
             f"- Account Email: The email address in the text content\n"
@@ -79,6 +79,8 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
         if extracted_content.startswith("```") and extracted_content.endswith("```"):
             extracted_content = extracted_content[extracted_content.find("{"):extracted_content.rfind("}") + 1]
 
+        if "INPUT_ERROR_CODE" in extracted_content:
+            return {"error": "Input error code detected"}
         # Parse and return the extracted JSON
         return json.loads(extracted_content)
 
