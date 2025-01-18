@@ -52,9 +52,10 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
             f"- Event Name: The name of the event\n"
             f"- Event Date: The event date\n"
             f"- Venue: The venue name\n"
-            f"- Location: City and State (Same field 'City, State')\n"
+            f"- Location: City and State (Same field 'City, State' with two letter state code)\n"
             f"- Quantity of Tickets: The number of tickets purchased\n"
-            f"- Total Price: The total price in dollars\n\n"
+            f"- Total Price: The total price in dollars\n"
+            f"- Last 4: The last 4 digits of the credit card that made the purchase\n\n"
             f"Data:\n\nText Content:\n{text_content}\n\nOCR Data:\n{ocr_json}\n\n"
             f"Ensure all fields are included in the JSON, even if null."
         )

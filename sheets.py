@@ -63,7 +63,8 @@ def send_to_sheets(username, date, processed_data):
             processed_data.get("Venue", ""),
             processed_data.get("Location", ""),
             processed_data.get("Quantity of Tickets", ""),
-            processed_data.get("Total Price", "")
+            processed_data.get("Total Price", ""),
+            processed_data.get("Last 4", "")
         ]
 
         logging.debug(f"Prepared row to append: {row}")

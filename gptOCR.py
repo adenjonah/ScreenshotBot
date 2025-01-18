@@ -43,8 +43,9 @@ def gptOCR(image_path):
                     "content": [
                         {"type": "text", "text": (
                             "Extract the following information from the image and return it as a JSON object with no leading or trailing text: "
-                            "Event Name, Event Date (MM/DD/YYYY format), Venue, Location (City, State), Quantity of tickets purchased, "
-                            "and Total price in $. Do not include any other text in your response."
+                            "Event Name, Event Date (MM/DD/YYYY format), Venue, Location (City, State (Two letter state code)), Quantity of tickets purchased, "
+                            "and Total price in $. Last 4 of the credit card used for purchase. The quantity and total price should include all tickets in the order, even if they are different types"
+                            "Like if 2 are VIP and 3 are general, total quantity is 5. Do not include any other text in your response."
                         )},
                         {
                             "type": "image_url",
