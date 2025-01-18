@@ -94,15 +94,15 @@ async def on_message(message):
     purchaser_username = message.author.name
     screenshot_date = message.created_at.strftime("%Y-%m-%d")
 
-    logging.info(f"Combined data: {combined_data}")
+    logging.info(
+        f"User: {purchaser_username}, Date: {screenshot_date}, Combined data: {combined_data}")
 
     try:
-
         processed_data = process_order_data(
             combined_data, purchaser_username, screenshot_date)
         logging.info(f"Processed data: {processed_data}")
 
-        if processed_data.get("error"):
+        if processed_data.get("error_code"):
             logging.warning(
                 f"Processing error detected: {processed_data['error']}")
             return
@@ -122,7 +122,8 @@ async def on_message(message):
             logging.info(
                 f"Proceeding despite missing fields: {missing_fields}")
 
-        result = send_to_sheets(processed_data)
+        result = send_to_sheets(
+            purchaser_username, screenshot_date, processed_data)
         if result == "Success":
             embed = discord.Embed(
                 title="Order Logged Successfully!",

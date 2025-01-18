@@ -47,10 +47,8 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
         prompt = (
             f"Extract the following fields from the provided data and return them as a JSON object. "
             f"If you feel the data is not intended for these classifications, respond only with \"INPUT_ERROR_CODE\":\n\n"
-            f"- Purchaser Username: The Discord username ({purchaser_username})\n"
-            f"- Date of Screenshot: The date the screenshot was sent ({screenshot_date})\n"
-            f"- Account Email: The email address in the text content\n"
-            f"- Account Password: The password in the text content\n"
+            f"- Account Email: The email address of the purchaser\n"
+            f"- Account Password: The password, if unsure what the password is use any chunk with words numbers and symbols\n"
             f"- Event Name: The name of the event\n"
             f"- Event Date: The event date\n"
             f"- Venue: The venue name\n"
@@ -67,7 +65,7 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
                 {"role": "system", "content": "You are a data extraction assistant."},
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=500,
+            max_tokens=1000,
         )
 
         extracted_content = response.choices[0].message.content.strip()
@@ -86,4 +84,4 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
     except Exception as e:
 
         print(f"Error during processing: {e}")
-        return {"error": str(e)}
+        return {"error_code": str(e)}

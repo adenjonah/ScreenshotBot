@@ -14,7 +14,7 @@ logging.basicConfig(
 )
 
 
-def send_to_sheets(processed_data):
+def send_to_sheets(username, date, processed_data):
     """
     Append a row to a Google Sheet with the processed data.
 
@@ -54,8 +54,8 @@ def send_to_sheets(processed_data):
         sheet = client.open(sheet_name).sheet1
 
         row = [
-            processed_data.get("Purchaser Username", ""),
-            processed_data.get("Date of Screenshot", ""),
+            username,
+            date,
             processed_data.get("Account Email", ""),
             processed_data.get("Account Password", ""),
             processed_data.get("Event Name", ""),

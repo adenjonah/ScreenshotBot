@@ -56,7 +56,7 @@ def gptOCR(image_path):
                     ],
                 }
             ],
-            max_tokens=300,
+            max_tokens=1000,
         )
 
         return {"file_path": image_path, "extracted_text": response.choices[0].message.content.strip()}
