@@ -136,6 +136,9 @@ async def process_message(message):
             logging.info(
                 f"Proceeding despite missing fields: {missing_fields}")
 
+        screenshot_date = message.created_at.strftime(
+            "%m/%d/%y")  # Correctly formatted date
+
         result = send_to_sheets(
             purchaser_username, screenshot_date, processed_data)
         if result == "Success":
