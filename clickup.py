@@ -27,7 +27,8 @@ USERNAME_TO_TAG = {
     "mariaeden_": "Eden",
     "mistysun_": "Mistysun",
     "xavieryyyyy2740": "Xaviery",
-    "stephaniemaem": "Hopey"
+    "stephaniemaem": "Hopey",
+    "_adenj": "Hopey"
 }
 
 
