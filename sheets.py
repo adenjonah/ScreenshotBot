@@ -31,13 +31,26 @@ def send_to_sheets(username, date, processed_data):
         scope = ["https://spreadsheets.google.com/feeds",
                  "https://www.googleapis.com/auth/drive"]
 
-        google_key_json = os.getenv("GOOGLE_KEY")
-        if not google_key_json:
-            logging.error("GOOGLE_KEY environment variable is not set.")
-            raise ValueError("GOOGLE_KEY environment variable is not set.")
+        # google_key_json = os.getenv("GOOGLE_KEY")
+        # if not google_key_json:
+        #     logging.error("GOOGLE_KEY environment variable is not set.")
+        #     raise ValueError("GOOGLE_KEY environment variable is not set.")
 
-        logging.debug("Decoding service account credentials...")
-        service_account_info = json.loads(google_key_json)
+        # logging.debug("Decoding service account credentials...")
+        # service_account_info = json.loads(google_key_json)
+        # logging.info("Service account info successfully loaded.")
+
+        data_file_path = "greg-key.json"
+
+        if not os.path.exists(data_file_path):
+            logging.error(
+                f"{data_file_path} not found. Ensure the file is in the project directory.")
+            raise FileNotFoundError(f"{data_file_path} not found.")
+
+        logging.debug(
+            f"Loading service account credentials from {data_file_path}...")
+        with open(data_file_path, "r") as file:
+            service_account_info = json.load(file)
         logging.info("Service account info successfully loaded.")
 
         logging.debug("Creating credentials from the service account info...")

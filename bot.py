@@ -7,11 +7,13 @@ from dotenv import load_dotenv
 from gptOCR import gptOCR
 from process_data import process_order_data
 from sheets import send_to_sheets
+import asyncio
+import uuid
 
 load_dotenv()
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.StreamHandler()
@@ -41,15 +43,24 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     """
-    Process any message in channels under the "screenshots" category.
+    Process messages from the "screenshots" category as they arrive.
     """
-
     if message.author == bot.user:
         return
 
     if message.channel.category is None or message.channel.category.name.lower() != "screenshots":
         return
 
+    # Start processing the message immediately in its own task
+    logging.info(
+        f"Received message from {message.author.name}. Starting processing...")
+    asyncio.create_task(process_message(message))
+
+
+async def process_message(message):
+    """
+    Process a single message.
+    """
     order_text = message.content.strip()
     if not order_text and not message.attachments:
         logging.info("Message ignored: No text or attachments found.")
@@ -61,7 +72,8 @@ async def on_message(message):
     if message.attachments:
         for attachment in message.attachments:
             if attachment.content_type and attachment.content_type.startswith("image/"):
-                file_path = os.path.join(DOWNLOAD_DIR, attachment.filename)
+                unique_filename = f"{uuid.uuid4()}_{attachment.filename}"
+                file_path = os.path.join(DOWNLOAD_DIR, unique_filename)
                 downloaded_files.append(file_path)
 
                 try:
@@ -75,7 +87,8 @@ async def on_message(message):
                                 ocr_data = gptOCR(file_path)
                                 if "extracted_text" in ocr_data:
                                     ocr_results.append(
-                                        ocr_data["extracted_text"])
+                                        ocr_data["extracted_text"]
+                                    )
                                 else:
                                     logging.warning(
                                         f"Failed to process {attachment.filename}: {ocr_data.get('error', 'Unknown error')}")
@@ -107,7 +120,7 @@ async def on_message(message):
                 f"Processing error detected: {processed_data['error']}")
             return
 
-        MAX_ALLOWED_MISSING_FIELDS = 3
+        MAX_ALLOWED_MISSING_FIELDS = 5
 
         required_fields = ["Account Email", "Event Name", "Event Date",
                            "Location", "Quantity of Tickets", "Total Price"]
@@ -150,6 +163,7 @@ async def on_message(message):
             logging.info(f"Deleted file: {file_path}")
         except Exception as e:
             logging.error(f"Failed to delete file {file_path}: {e}")
+
 
 if __name__ == "__main__":
     if DISCORD_BOT_TOKEN is None:
