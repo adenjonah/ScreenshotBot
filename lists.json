@@ -1,0 +1,203 @@
+{
+  "lists": [
+    {
+      "id": "901109040479",
+      "name": "Personal List",
+      "orderindex": 0,
+      "content": "",
+      "status": null,
+      "priority": null,
+      "assignee": null,
+      "task_count": 0,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90115395163",
+        "name": "hidden",
+        "hidden": true,
+        "access": true
+      },
+      "space": {
+        "id": "90113509233",
+        "name": "Personal Space",
+        "access": true
+      },
+      "archived": false,
+      "override_statuses": true,
+      "permission_level": "create"
+    },
+    {
+      "id": "901106547568",
+      "name": "List",
+      "orderindex": 0,
+      "status": null,
+      "priority": null,
+      "assignee": null,
+      "task_count": 0,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90113767788",
+        "name": "PO/Audit",
+        "hidden": false,
+        "access": true
+      },
+      "space": { "id": "90112144959", "name": "Remote", "access": true },
+      "archived": false,
+      "override_statuses": null,
+      "permission_level": "create"
+    },
+    {
+      "id": "901106547586",
+      "name": "List",
+      "orderindex": 0,
+      "status": null,
+      "priority": null,
+      "assignee": null,
+      "task_count": 1,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90113767804",
+        "name": "Account Maintenance/Signups",
+        "hidden": false,
+        "access": true
+      },
+      "space": { "id": "90112144959", "name": "Remote", "access": true },
+      "archived": false,
+      "override_statuses": null,
+      "permission_level": "create"
+    },
+    {
+      "id": "901106453044",
+      "name": "Order Fulfillment",
+      "orderindex": 0,
+      "content": "",
+      "status": { "status": "remote tasks", "color": "#ff8383" },
+      "priority": null,
+      "assignee": null,
+      "task_count": 1,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90113707609",
+        "name": "hidden",
+        "hidden": true,
+        "access": true
+      },
+      "space": { "id": "90112144959", "name": "Remote", "access": true },
+      "archived": false,
+      "override_statuses": false,
+      "permission_level": "create"
+    },
+    {
+      "id": "901107114689",
+      "name": "List",
+      "orderindex": 0,
+      "status": null,
+      "priority": null,
+      "assignee": null,
+      "task_count": 0,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90114137062",
+        "name": "Account Testing Team",
+        "hidden": false,
+        "access": true
+      },
+      "space": { "id": "90112144959", "name": "Remote", "access": true },
+      "archived": false,
+      "override_statuses": null,
+      "permission_level": "create"
+    },
+    {
+      "id": "901108459183",
+      "name": "Buying Screenshots Data",
+      "orderindex": 0,
+      "content": "",
+      "status": null,
+      "priority": null,
+      "assignee": null,
+      "task_count": 13,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90115057102",
+        "name": "hidden",
+        "hidden": true,
+        "access": true
+      },
+      "space": { "id": "90113253271", "name": "Reporting", "access": true },
+      "archived": false,
+      "override_statuses": true,
+      "permission_level": "create"
+    },
+    {
+      "id": "901108508314",
+      "name": "Dec 2024 Leaderboard",
+      "orderindex": 0,
+      "content": "",
+      "status": null,
+      "priority": null,
+      "assignee": null,
+      "task_count": 16,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90115059075",
+        "name": "hidden",
+        "hidden": true,
+        "access": true
+      },
+      "space": { "id": "90113253271", "name": "Reporting", "access": true },
+      "archived": false,
+      "override_statuses": false,
+      "permission_level": "create"
+    },
+    {
+      "id": "901108509240",
+      "name": "Nov 2024 Leaderboard",
+      "orderindex": 0,
+      "content": "",
+      "status": null,
+      "priority": null,
+      "assignee": null,
+      "task_count": 16,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90115059686",
+        "name": "hidden",
+        "hidden": true,
+        "access": true
+      },
+      "space": { "id": "90113253271", "name": "Reporting", "access": true },
+      "archived": false,
+      "override_statuses": true,
+      "permission_level": "create"
+    },
+    {
+      "id": "901108564035",
+      "name": "Org Chart",
+      "orderindex": 0,
+      "content": "",
+      "status": null,
+      "priority": null,
+      "assignee": null,
+      "task_count": 0,
+      "due_date": null,
+      "start_date": null,
+      "folder": {
+        "id": "90115096995",
+        "name": "hidden",
+        "hidden": true,
+        "access": true
+      },
+      "space": { "id": "90113253271", "name": "Reporting", "access": true },
+      "archived": false,
+      "override_statuses": false,
+      "permission_level": "create"
+    }
+  ]
+}
