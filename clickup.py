@@ -71,13 +71,20 @@ def append_to_clickup_task(list_id, username, date_of_screenshot, quantity_of_ti
 
     logging.debug(f"Resolved team tag '{team_tag}' to UUID: {team_uuid}")
 
+    # Handle date parsing with multiple formats
     try:
+        # First, try the provided format MM/DD/YY
         date_in_ms = int(time.mktime(time.strptime(
-            date_of_screenshot, "%Y-%m-%d"))) * 1000
-    except ValueError as e:
-        logging.error(
-            f"Invalid date format: {date_of_screenshot}. Expected format is YYYY-MM-DD. Error: {e}")
-        return f"Error: Invalid date format '{date_of_screenshot}'. Expected YYYY-MM-DD."
+            date_of_screenshot, "%m/%d/%y"))) * 1000
+    except ValueError:
+        try:
+            # Fallback to the expected format YYYY-MM-DD
+            date_in_ms = int(time.mktime(time.strptime(
+                date_of_screenshot, "%Y-%m-%d"))) * 1000
+        except ValueError as e:
+            logging.error(
+                f"Invalid date format: {date_of_screenshot}. Expected format is MM/DD/YY or YYYY-MM-DD. Error: {e}")
+            return f"Error: Invalid date format '{date_of_screenshot}'. Expected MM/DD/YY or YYYY-MM-DD."
 
     url = f"{CLICKUP_API_BASE}/list/{list_id}/task"
     headers = {
