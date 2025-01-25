@@ -3,7 +3,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 import json
 import logging
-
+import re
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -75,7 +75,8 @@ def send_to_sheets(username, date, processed_data):
             processed_data.get("Event Date", ""),
             processed_data.get("Venue", ""),
             processed_data.get("Location", ""),
-            processed_data.get("Quantity of Tickets", ""),
+            "".join(re.findall(
+                r'\d+', processed_data.get("Quantity of Tickets", ""))),
             processed_data.get("Total Price", ""),
             processed_data.get("Last 4", "")
         ]

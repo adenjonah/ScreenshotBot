@@ -53,7 +53,7 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
             f"- Event Date: The event date\n"
             f"- Venue: The venue name\n"
             f"- Location: City and State (Same field 'City, State' with two letter state code)\n"
-            f"- Quantity of Tickets: The number of tickets purchased. If the quantity is provided in the text content (ex. quantity 8, qty 8, 8x, quantity 4, qty 4, 4x, and others) use the provided text over what you get in the OCR.\n"
+            f"- Quantity of Tickets: The number of tickets purchased. If the quantity is provided in the text content (ex. quantity 8, qty 8, 8x, quantity 4, qty 4, 4x, and others) use the provided text over what you get in the OCR. Also, only return the numeric value (8 for 8x, 8 tickets, qty 8 etc)\n"
             f"- Total Price: The total price in dollars\n"
             f"- Last 4: The last 4 digits of the credit card that made the purchase\n\n"
             f"Data:\n\nText Content:\n{text_content}\n\nOCR Data:\n{ocr_json}\n\n"
