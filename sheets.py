@@ -62,7 +62,7 @@ def send_to_sheets(username, date, processed_data):
         client = gspread.authorize(credentials)
         logging.info("Google Sheets client authorized successfully.")
 
-        sheet_name = "Buying Screenshots Data"
+        sheet_name = "Ticketkings Screenshots Data"
         logging.info(f"Opening Google Sheet: {sheet_name}")
         sheet = client.open(sheet_name).sheet1
 
