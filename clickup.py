@@ -30,7 +30,8 @@ USERNAME_TO_TAG = {
     "mistysun_": "Mistysun",
     "xavieryyyyy2740": "Xaviery",
     "stephaniemaem": "Hopey",
-    "adenj_": "Hopey"
+    "adenj_": "Hopey",
+    "luck.7398": "Hopey"
 }
 
 # Define the team tag-to-ID mapping dictionary
