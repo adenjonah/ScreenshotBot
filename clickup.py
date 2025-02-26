@@ -57,7 +57,7 @@ BUYING_TEAM_OPTIONS = {
 
 def append_to_clickup_task(list_id, username, date_of_screenshot, quantity_of_tickets):
     """
-    Create a task in the specified ClickUp list with custom fields.
+    Create a task in ClickUp with the given details.
     """
     if username not in USERNAME_TO_TAG:
         logging.error(
@@ -121,13 +121,16 @@ def append_to_clickup_task(list_id, username, date_of_screenshot, quantity_of_ti
     logging.debug(f"Sending payload to ClickUp: {payload}")
 
     response = requests.post(url, headers=headers, json=payload)
-    logging.info(f"ClickUp response: {response.status_code} - {response.text}")
+    
+    if response.status_code == 200:
+        logging.info(f"ClickUp task created for {username}")
+        # Only log minimal response info for debugging if needed
+        logging.debug(f"ClickUp task ID: {response.json().get('id')}")
+        return response.json()
+    else:
+        logging.error(f"Failed to create ClickUp task: {response.status_code}")
+        return None
 
-    try:
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        logging.error(f"Failed to create ClickUp task: {e}")
-        logging.error(f"Response content: {response.json()}")
-        return f"Error: {response.json().get('err', 'Unknown error')} (Code: {response.status_code})"
-
-    return response.json()
+    except Exception as e:
+        logging.error(f"Error creating ClickUp task: {str(e)}")
+        return None

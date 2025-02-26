@@ -149,7 +149,8 @@ async def process_message(message):
                 quantity_of_tickets=processed_data.get(
                     "Quantity of Tickets", 0)
             )
-            logging.info(f"ClickUp task creation result: {clickup_response}")
+            if clickup_response:
+                logging.debug(f"ClickUp task created with ID: {clickup_response.get('id')}")
 
             embed = discord.Embed(
                 title="Order Logged Successfully!",
