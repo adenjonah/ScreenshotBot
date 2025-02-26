@@ -59,77 +59,77 @@ def append_to_clickup_task(list_id, username, date_of_screenshot, quantity_of_ti
     """
     Create a task in ClickUp with the given details.
     """
-    if username not in USERNAME_TO_TAG:
-        logging.error(
-            f"Username '{username}' not found in mapping. Skipping task creation.")
-        return f"Error: Username '{username}' not found in mapping."
-
-    team_tag = USERNAME_TO_TAG[username]
-    team_uuid = BUYING_TEAM_OPTIONS.get(team_tag)
-
-    if not team_uuid:
-        logging.error(
-            f"Invalid team tag '{team_tag}' for username '{username}'.")
-        return f"Error: Invalid team tag '{team_tag}' for username '{username}'."
-
-    logging.debug(f"Resolved team tag '{team_tag}' to UUID: {team_uuid}")
-
-    # Handle date parsing and conversion to Eastern Time
     try:
-        # Parse date in MM/DD/YY format
+        if username not in USERNAME_TO_TAG:
+            logging.error(
+                f"Username '{username}' not found in mapping. Skipping task creation.")
+            return f"Error: Username '{username}' not found in mapping."
+
+        team_tag = USERNAME_TO_TAG[username]
+        team_uuid = BUYING_TEAM_OPTIONS.get(team_tag)
+
+        if not team_uuid:
+            logging.error(
+                f"Invalid team tag '{team_tag}' for username '{username}'.")
+            return f"Error: Invalid team tag '{team_tag}' for username '{username}'."
+
+        logging.debug(f"Resolved team tag '{team_tag}' to UUID: {team_uuid}")
+
+        # Handle date parsing and conversion to Eastern Time
         try:
-            naive_date = datetime.strptime(date_of_screenshot, "%m/%d/%y")
-        except ValueError:
-            # Fallback to YYYY-MM-DD format
-            naive_date = datetime.strptime(date_of_screenshot, "%Y-%m-%d")
+            # Parse date in MM/DD/YY format
+            try:
+                naive_date = datetime.strptime(date_of_screenshot, "%m/%d/%y")
+            except ValueError:
+                # Fallback to YYYY-MM-DD format
+                naive_date = datetime.strptime(date_of_screenshot, "%Y-%m-%d")
 
-        # Localize to Eastern Time (ET)
-        eastern = pytz.timezone("US/Eastern")
-        localized_date = eastern.localize(naive_date)
+            # Localize to Eastern Time (ET)
+            eastern = pytz.timezone("US/Eastern")
+            localized_date = eastern.localize(naive_date)
 
-        # Convert to milliseconds since epoch
-        date_in_ms = int(localized_date.timestamp() * 1000)
-    except ValueError as e:
-        logging.error(
-            f"Invalid date format: {date_of_screenshot}. Expected format is MM/DD/YY or YYYY-MM-DD. Error: {e}")
-        return f"Error: Invalid date format '{date_of_screenshot}'. Expected MM/DD/YY or YYYY-MM-DD."
+            # Convert to milliseconds since epoch
+            date_in_ms = int(localized_date.timestamp() * 1000)
+        except ValueError as e:
+            logging.error(
+                f"Invalid date format: {date_of_screenshot}. Expected format is MM/DD/YY or YYYY-MM-DD. Error: {e}")
+            return f"Error: Invalid date format '{date_of_screenshot}'. Expected MM/DD/YY or YYYY-MM-DD."
 
-    url = f"{CLICKUP_API_BASE}/list/{list_id}/task"
-    headers = {
-        "Authorization": CLICKUP_API_TOKEN,
-        "Content-Type": "application/json"
-    }
+        url = f"{CLICKUP_API_BASE}/list/{list_id}/task"
+        headers = {
+            "Authorization": CLICKUP_API_TOKEN,
+            "Content-Type": "application/json"
+        }
 
-    payload = {
-        "name": username,
-        "custom_fields": [
-            {
-                "id": "93467127-e21f-45e5-b90e-052c2f9cf332",  # Date of Screenshot
-                "value": date_in_ms
-            },
-            {
-                "id": "abc0669f-685b-45ab-a7d7-c2f2f7573119",  # Quantity of Tickets
-                "value": quantity_of_tickets
-            },
-            {
-                "id": "c67a5727-32c8-4638-80a0-f3b1f4de7a70",  # Buying Team
-                "value": team_uuid
-            }
-        ]
-    }
+        payload = {
+            "name": username,
+            "custom_fields": [
+                {
+                    "id": "93467127-e21f-45e5-b90e-052c2f9cf332",  # Date of Screenshot
+                    "value": date_in_ms
+                },
+                {
+                    "id": "abc0669f-685b-45ab-a7d7-c2f2f7573119",  # Quantity of Tickets
+                    "value": quantity_of_tickets
+                },
+                {
+                    "id": "c67a5727-32c8-4638-80a0-f3b1f4de7a70",  # Buying Team
+                    "value": team_uuid
+                }
+            ]
+        }
 
-    logging.debug(f"Sending payload to ClickUp: {payload}")
+        logging.debug(f"Sending payload to ClickUp: {payload}")
 
-    response = requests.post(url, headers=headers, json=payload)
-    
-    if response.status_code == 200:
-        logging.info(f"ClickUp task created for {username}")
-        # Only log minimal response info for debugging if needed
-        logging.debug(f"ClickUp task ID: {response.json().get('id')}")
-        return response.json()
-    else:
-        logging.error(f"Failed to create ClickUp task: {response.status_code}")
-        return None
+        response = requests.post(url, headers=headers, json=payload)
+        
+        if response.status_code == 200:
+            logging.info(f"ClickUp task created for {username}")
+            logging.debug(f"ClickUp task ID: {response.json().get('id')}")
+            return response.json()
+        else:
+            logging.error(f"Failed to create ClickUp task: {response.status_code}")
+            return None
 
     except Exception as e:
         logging.error(f"Error creating ClickUp task: {str(e)}")
