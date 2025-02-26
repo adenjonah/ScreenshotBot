@@ -14,7 +14,7 @@ from clickup import append_to_clickup_task
 load_dotenv()
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.StreamHandler()
@@ -64,7 +64,7 @@ async def process_message(message):
     """
     order_text = message.content.strip()
     if not order_text and not message.attachments:
-        logging.info("Message ignored: No text or attachments found.")
+        logging.debug("Message ignored: No text or attachments found.")
         return
 
     ocr_results = []
@@ -83,7 +83,7 @@ async def process_message(message):
                             if response.status == 200:
                                 with open(file_path, "wb") as f:
                                     f.write(await response.read())
-                                logging.info(f"Image saved to {file_path}")
+                                logging.debug(f"Image saved to {file_path}")
 
                                 ocr_data = await gptOCR(file_path)
                                 if "extracted_text" in ocr_data:
@@ -108,13 +108,11 @@ async def process_message(message):
     purchaser_username = message.author.name
     screenshot_date = message.created_at.strftime("%Y-%m-%d")
 
-    logging.info(
-        f"User: {purchaser_username}, Date: {screenshot_date}, Combined data: {combined_data}")
+    logging.debug(f"Processing data for user: {purchaser_username}")
 
     try:
         processed_data = await process_order_data(
             combined_data, purchaser_username, screenshot_date)
-        logging.info(f"Processed data: {processed_data}")
 
         if processed_data.get("error_code"):
             logging.warning(

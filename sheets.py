@@ -6,7 +6,7 @@ import logging
 import re
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.StreamHandler()
@@ -24,10 +24,9 @@ def send_to_sheets(username, date, processed_data):
     Returns:
         str: Success or error message.
     """
-    logging.info("Initializing Google Sheets API...")
+    logging.debug("Initializing Google Sheets connection...")
 
     try:
-
         scope = ["https://spreadsheets.google.com/feeds",
                  "https://www.googleapis.com/auth/drive"]
 
@@ -63,7 +62,7 @@ def send_to_sheets(username, date, processed_data):
         logging.info("Google Sheets client authorized successfully.")
 
         sheet_name = "Ticketkings Screenshots Data"
-        logging.info(f"Opening Google Sheet: {sheet_name}")
+        logging.debug(f"Opening sheet: {sheet_name}")
         sheet = client.open(sheet_name).sheet1
 
         quantity_str = "".join(re.findall(
@@ -88,7 +87,7 @@ def send_to_sheets(username, date, processed_data):
 
         logging.debug("Appending row to the Google Sheet...")
         sheet.append_row(row)
-        logging.info("Row successfully appended to the Google Sheet.")
+        logging.info(f"Successfully logged order for {username}")
 
         return "Success"
 

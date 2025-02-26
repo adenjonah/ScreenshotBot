@@ -1,6 +1,7 @@
 import json
 import re
 import os
+import logging
 from datetime import datetime
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
@@ -25,12 +26,10 @@ async def process_order_data(combined_data, purchaser_username, screenshot_date)
         dict: A structured JSON object with extracted fields or an error message if invalid input.
     """
     try:
-
         text_content = combined_data.get("text_content", "").strip()
         ocr_results = combined_data.get("ocr_results", [])
 
-        print(f"Received text content: {text_content}")
-        print(f"Received OCR results: {ocr_results}")
+        logging.debug(f"Processing order for user: {purchaser_username}")
 
         if not text_content and not ocr_results:
             return {"error": "No valid content found in the input."}
@@ -41,8 +40,6 @@ async def process_order_data(combined_data, purchaser_username, screenshot_date)
             if match:
                 ocr_json = match.group()
                 break
-
-        print(f"OCR JSON extracted: {ocr_json}")
 
         prompt = (
             f"Extract the following fields from the provided data and return them as a JSON object. "
@@ -72,8 +69,6 @@ async def process_order_data(combined_data, purchaser_username, screenshot_date)
 
         extracted_content = response.choices[0].message.content.strip()
 
-        print(f"Extracted content: {extracted_content}")
-
         if "INPUT_ERROR_CODE" in extracted_content:
             return {"error": "Input does not match the expected order format."}
 
@@ -84,6 +79,5 @@ async def process_order_data(combined_data, purchaser_username, screenshot_date)
         return json.loads(extracted_content)
 
     except Exception as e:
-
-        print(f"Error during processing: {e}")
+        logging.error(f"Error during processing: {e}")
         return {"error_code": "PROCESSING_ERROR"}
