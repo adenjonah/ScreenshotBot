@@ -85,7 +85,7 @@ async def process_message(message):
                                     f.write(await response.read())
                                 logging.info(f"Image saved to {file_path}")
 
-                                ocr_data = gptOCR(file_path)
+                                ocr_data = await gptOCR(file_path)
                                 if "extracted_text" in ocr_data:
                                     ocr_results.append(
                                         ocr_data["extracted_text"]
@@ -112,7 +112,7 @@ async def process_message(message):
         f"User: {purchaser_username}, Date: {screenshot_date}, Combined data: {combined_data}")
 
     try:
-        processed_data = process_order_data(
+        processed_data = await process_order_data(
             combined_data, purchaser_username, screenshot_date)
         logging.info(f"Processed data: {processed_data}")
 

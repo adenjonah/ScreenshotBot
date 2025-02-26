@@ -66,6 +66,10 @@ def send_to_sheets(username, date, processed_data):
         logging.info(f"Opening Google Sheet: {sheet_name}")
         sheet = client.open(sheet_name).sheet1
 
+        quantity_str = "".join(re.findall(
+            r'\d+', str(processed_data.get("Quantity of Tickets", ""))))
+        quantity = int(quantity_str) if quantity_str.isdigit() else 0
+
         row = [
             username,
             date,
@@ -75,8 +79,7 @@ def send_to_sheets(username, date, processed_data):
             processed_data.get("Event Date", ""),
             processed_data.get("Venue", ""),
             processed_data.get("Location", ""),
-            "".join(re.findall(
-                r'\d+', str(processed_data.get("Quantity of Tickets", "")))),
+            quantity,
             processed_data.get("Total Price", ""),
             processed_data.get("Last 4", "")
         ]

@@ -2,17 +2,17 @@ import json
 import re
 import os
 from datetime import datetime
-from openai import OpenAI
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 
 load_dotenv()
 
 
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def process_order_data(combined_data, purchaser_username, screenshot_date):
+async def process_order_data(combined_data, purchaser_username, screenshot_date):
     """
     Process combined data to extract order information, send it to GPT API, and return structured JSON.
 
@@ -60,13 +60,14 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
             f"Ensure all fields are included in the JSON, even if null."
         )
 
-        response = openai_client.chat.completions.create(
-            model="gpt-4o",
+        response = await openai_client.chat.completions.create(
+            model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a data extraction assistant."},
-                {"role": "user", "content": prompt},
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
             ],
-            max_tokens=1000,
+            temperature=0.1,
+            max_tokens=1000
         )
 
         extracted_content = response.choices[0].message.content.strip()
@@ -85,4 +86,4 @@ def process_order_data(combined_data, purchaser_username, screenshot_date):
     except Exception as e:
 
         print(f"Error during processing: {e}")
-        return {"error_code": str(e)}
+        return {"error_code": "PROCESSING_ERROR"}

@@ -1,15 +1,16 @@
 import base64
 import os
-from openai import OpenAI
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 import re
+import aiofiles
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def encode_image(image_path):
+async def encode_image(image_path):
     """
     Encodes an image in base64 format for sending to OpenAI Vision API.
     Args:
@@ -18,13 +19,14 @@ def encode_image(image_path):
         str: Base64-encoded string of the image.
     """
     try:
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode("utf-8")
+        async with aiofiles.open(image_path, "rb") as image_file:
+            image_data = await image_file.read()
+            return base64.b64encode(image_data).decode("utf-8")
     except Exception as e:
         raise ValueError(f"Failed to encode image: {e}")
 
 
-def gptOCR(image_path):
+async def gptOCR(image_path):
     """
     Uses OpenAI Vision to extract text or understand content from an image.
     Args:
@@ -33,9 +35,9 @@ def gptOCR(image_path):
         dict: Extracted content or error details.
     """
     try:
-        base64_image = encode_image(image_path)
+        base64_image = await encode_image(image_path)
 
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {
@@ -66,14 +68,18 @@ def gptOCR(image_path):
 
 
 if __name__ == "__main__":
-    image_path = "test1.png"
+    import asyncio
 
-    raw_result = gptOCR(image_path)
-    result = re.search(
-        r"\{.*\}", raw_result["extracted_text"], re.DOTALL).group()
+    async def main():
+        image_path = "test1.png"
+        raw_result = await gptOCR(image_path)
+        result = re.search(
+            r"\{.*\}", raw_result["extracted_text"], re.DOTALL).group()
 
-    if "extracted_text" in raw_result:
-        print(result)
-    else:
-        print("Error:")
-        print(raw_result["error"])
+        if "extracted_text" in raw_result:
+            print(result)
+        else:
+            print("Error:")
+            print(raw_result["error"])
+
+    asyncio.run(main())
