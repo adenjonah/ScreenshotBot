@@ -6,13 +6,12 @@ import logging
 import re
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.INFO,  # Changed from DEBUG to INFO
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.StreamHandler()
     ]
 )
-
 
 def send_to_sheets(username, date, processed_data):
     """

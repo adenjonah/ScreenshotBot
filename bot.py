@@ -9,7 +9,6 @@ from process_data import process_order_data
 from sheets import send_to_sheets
 import asyncio
 import uuid
-from clickup import append_to_clickup_task
 
 load_dotenv()
 
@@ -140,18 +139,6 @@ async def process_message(message):
         result = send_to_sheets(
             purchaser_username, screenshot_date, processed_data)
         if result == "Success":
-            # Adding the ClickUp task after successful Google Sheets append
-            clickup_list_id = "901108459183"  # Replace with your ClickUp list ID
-            clickup_response = append_to_clickup_task(
-                clickup_list_id,
-                username=purchaser_username,
-                date_of_screenshot=screenshot_date,
-                quantity_of_tickets=processed_data.get(
-                    "Quantity of Tickets", 0)
-            )
-            if clickup_response:
-                logging.debug(f"ClickUp task created with ID: {clickup_response.get('id')}")
-
             embed = discord.Embed(
                 title="Order Logged Successfully!",
                 description="Here is the information that was logged. Please review it for accuracy.",
