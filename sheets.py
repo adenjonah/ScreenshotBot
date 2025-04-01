@@ -14,12 +14,16 @@ logging.basicConfig(
     ]
 )
 
-def send_to_sheets(username, date, processed_data):
+def send_to_sheets(username, date, processed_data, server=None):
     """
     Append a row to a Google Sheet with the processed data.
 
     Args:
+        username (str): The username of the person who sent the message.
+        date (str): The date and time when the message was sent.
         processed_data (dict): The structured data containing all extracted fields.
+        server (str, optional): The server/guild from which the message originated. 
+                               Used to determine which worksheet to update.
 
     Returns:
         str: Success or error message.
@@ -61,9 +65,39 @@ def send_to_sheets(username, date, processed_data):
         client = gspread.authorize(credentials)
         logging.info("Google Sheets client authorized successfully.")
 
+        # Default sheet name
         sheet_name = "Ticketkings Screenshots Data"
+        worksheet_name = "Sheet1"  # Default worksheet
+        
+        # Determine which worksheet to use based on the server
+        if server:
+            server = server.lower()
+            # Map server names to specific worksheets
+            if "ticketkings hq" in server:
+                worksheet_name = "Buying Data PH"
+                logging.info(f"Using worksheet 'Buying Data PH' for server '{server}'")
+            elif "ticket kings" in server:
+                worksheet_name = "Buying Data US"
+                logging.info(f"Using worksheet 'Buying Data US' for server '{server}'")
+            elif "account testing" in server:
+                sheet_name = "Account Testing Screenshots"
+                worksheet_name = "Account Testing Data"
+                logging.info(f"Using sheet '{sheet_name}' with worksheet '{worksheet_name}' for server '{server}'")
+            else:
+                logging.info(f"No specific mapping for server '{server}', using default worksheet")
+        else:
+            logging.info("No server specified, using default worksheet")
+            
         logging.debug(f"Opening sheet: {sheet_name}")
-        sheet = client.open(sheet_name).sheet1
+        
+        # Try to get the specific worksheet, defaulting to the first sheet if not found
+        try:
+            sheet = client.open(sheet_name).worksheet(worksheet_name)
+            logging.info(f"Using worksheet: {worksheet_name}")
+        except Exception as e:
+            logging.warning(f"Could not access worksheet '{worksheet_name}': {e}")
+            logging.info("Falling back to the default first sheet")
+            sheet = client.open(sheet_name).sheet1
         
         # Parse the date to separate date and time
         # Handle different date formats

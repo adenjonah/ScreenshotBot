@@ -136,8 +136,12 @@ async def process_message(message):
         screenshot_date = message.created_at.strftime(
             "%m/%d/%y")  # Correctly formatted date
 
+        # Get the server (guild) name for sheet selection
+        server_name = message.guild.name if message.guild else None
+        logging.info(f"Processing message from server: {server_name}")
+        
         result = send_to_sheets(
-            purchaser_username, screenshot_date, processed_data)
+            purchaser_username, screenshot_date, processed_data, server=server_name)
         if result == "Success":
             embed = discord.Embed(
                 title="Order Logged Successfully!",
