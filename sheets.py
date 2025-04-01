@@ -88,23 +88,29 @@ def send_to_sheets(username, date, processed_data):
                     date_obj = datetime.now()
 
         formatted_date = date_obj.strftime("%m/%d/%Y")  # Format: MM/DD/YYYY
-        formatted_time = date_obj.strftime("%I:%M:%S %p")  # Format: HH:MM:SS AM/PM
+        # We're no longer sending the time separately based on the expected sheet format
 
         quantity_str = "".join(re.findall(
             r'\d+', str(processed_data.get("Quantity of Tickets", ""))))
         quantity = int(quantity_str) if quantity_str.isdigit() else 0
 
+        # Updated row structure to match expected sheet columns
         row = [
-            username,
-            formatted_date,
-            formatted_time,
-            processed_data.get("Event Name", ""),
-            processed_data.get("Venue", ""),
-            processed_data.get("Location", ""),
-            processed_data.get("Website", ""),
-            quantity,
-            processed_data.get("Total Price", ""),
-            processed_data.get("Last 4", "")
+            username,                                   # Purchaser Username
+            formatted_date,                             # Date of Screenshot
+            processed_data.get("Account Email", ""),    # Account Email
+            processed_data.get("Account Password", ""), # Account Password
+            processed_data.get("Event Name", ""),       # Event Name
+            processed_data.get("Event Date", ""),       # Event Date
+            processed_data.get("Venue", ""),            # Venue
+            processed_data.get("Location", ""),         # Location
+            quantity,                                   # Quantity of Tickets
+            processed_data.get("Total Price", ""),      # Total Price
+            processed_data.get("Last 4", ""),           # Last 4 of Card
+            username,                                   # Name (duplicate of username)
+            formatted_date,                             # Date (duplicate of date)
+            quantity,                                   # Qty Of Tickets (duplicate of quantity)
+            processed_data.get("Website", "")           # Site
         ]
 
         logging.debug(f"Prepared row to append: {row}")
@@ -127,16 +133,16 @@ def send_to_sheets(username, date, processed_data):
                 }
             })
             
-            # Format the time column (third column - C)
-            time_column = 'C'
-            sheet.format(f'{time_column}{added_row}', {
+            # Format the duplicate date column (M)
+            date_column2 = 'M'
+            sheet.format(f'{date_column2}{added_row}', {
                 'numberFormat': {
-                    'type': 'TIME',
-                    'pattern': 'h:mm:ss AM/PM'
+                    'type': 'DATE',
+                    'pattern': 'M/d/yyyy'
                 }
             })
             
-            logging.info("Date and time formatting applied successfully.")
+            logging.info("Date formatting applied successfully.")
         except Exception as format_error:
             logging.error(f"Error formatting date/time cells: {format_error}")
             # Continue even if formatting fails
