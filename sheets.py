@@ -66,7 +66,27 @@ def send_to_sheets(username, date, processed_data):
         sheet = client.open(sheet_name).sheet1
         
         # Parse the date to separate date and time
-        date_obj = datetime.strptime(date, "%Y-%m-%d %H:%M:%S") 
+        # Handle different date formats
+        try:
+            # Try the standard format first
+            date_obj = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            try:
+                # Try MM/DD/YY format
+                date_obj = datetime.strptime(date, "%m/%d/%y")
+                # Add current time if only date was provided
+                now = datetime.now()
+                date_obj = date_obj.replace(hour=now.hour, minute=now.minute, second=now.second)
+            except ValueError:
+                try:
+                    # Try MM/DD/YYYY format
+                    date_obj = datetime.strptime(date, "%m/%d/%Y")
+                    now = datetime.now()
+                    date_obj = date_obj.replace(hour=now.hour, minute=now.minute, second=now.second)
+                except ValueError:
+                    logging.warning(f"Could not parse date '{date}', using current date/time")
+                    date_obj = datetime.now()
+
         formatted_date = date_obj.strftime("%m/%d/%Y")  # Format: MM/DD/YYYY
         formatted_time = date_obj.strftime("%I:%M:%S %p")  # Format: HH:MM:SS AM/PM
 
