@@ -4,6 +4,7 @@ import os
 import json
 import logging
 import re
+from datetime import datetime
 
 logging.basicConfig(
     level=logging.INFO,  # Changed from DEBUG to INFO
@@ -63,6 +64,11 @@ def send_to_sheets(username, date, processed_data):
         sheet_name = "Ticketkings Screenshots Data"
         logging.debug(f"Opening sheet: {sheet_name}")
         sheet = client.open(sheet_name).sheet1
+        
+        # Parse the date to separate date and time
+        date_obj = datetime.strptime(date, "%Y-%m-%d %H:%M:%S") 
+        formatted_date = date_obj.strftime("%m/%d/%Y")  # Format: MM/DD/YYYY
+        formatted_time = date_obj.strftime("%I:%M:%S %p")  # Format: HH:MM:SS AM/PM
 
         quantity_str = "".join(re.findall(
             r'\d+', str(processed_data.get("Quantity of Tickets", ""))))
@@ -70,13 +76,12 @@ def send_to_sheets(username, date, processed_data):
 
         row = [
             username,
-            date,
-            processed_data.get("Account Email", ""),
-            processed_data.get("Account Password", ""),
+            formatted_date,
+            formatted_time,
             processed_data.get("Event Name", ""),
-            processed_data.get("Event Date", ""),
             processed_data.get("Venue", ""),
             processed_data.get("Location", ""),
+            processed_data.get("Website", ""),
             quantity,
             processed_data.get("Total Price", ""),
             processed_data.get("Last 4", "")
@@ -85,9 +90,38 @@ def send_to_sheets(username, date, processed_data):
         logging.debug(f"Prepared row to append: {row}")
 
         logging.debug("Appending row to the Google Sheet...")
-        sheet.append_row(row)
+        response = sheet.append_row(row, value_input_option='USER_ENTERED')
+        
+        try:
+            # Get the added row index
+            all_values = sheet.get_all_values()
+            added_row = len(all_values)
+            logging.info(f"Row successfully appended at row {added_row}.")
+            
+            # Format the date column (second column - B)
+            date_column = 'B'
+            sheet.format(f'{date_column}{added_row}', {
+                'numberFormat': {
+                    'type': 'DATE',
+                    'pattern': 'M/d/yyyy'
+                }
+            })
+            
+            # Format the time column (third column - C)
+            time_column = 'C'
+            sheet.format(f'{time_column}{added_row}', {
+                'numberFormat': {
+                    'type': 'TIME',
+                    'pattern': 'h:mm:ss AM/PM'
+                }
+            })
+            
+            logging.info("Date and time formatting applied successfully.")
+        except Exception as format_error:
+            logging.error(f"Error formatting date/time cells: {format_error}")
+            # Continue even if formatting fails
+        
         logging.info(f"Successfully logged order for {username}")
-
         return "Success"
 
     except gspread.exceptions.SpreadsheetNotFound as snf_error:
