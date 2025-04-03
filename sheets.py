@@ -141,9 +141,12 @@ def send_to_sheets(username, date, processed_data, server=None):
             quantity,                                   # Quantity of Tickets
             processed_data.get("Total Price", ""),      # Total Price
             processed_data.get("Last 4", ""),           # Last 4 of Card
-            username,                                   # Name (duplicate of username)
-            formatted_date,                             # Date (duplicate of date)
-            quantity,                                   # Qty Of Tickets (duplicate of quantity)
+            "",
+            "",
+            "",
+            # username,                                   # Name (duplicate of username)
+            # formatted_date,                             # Date (duplicate of date)
+            # quantity,                                   # Qty Of Tickets (duplicate of quantity)
             processed_data.get("Website", "")           # Site
         ]
 
